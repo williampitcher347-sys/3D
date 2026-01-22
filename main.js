@@ -30,23 +30,28 @@ camera.position.set(0, 2, 5);
 
 // ===== INPUT =====
 const keys = {};
-document.addEventListener("keydown", e => keys[e.code] = true);
-document.addEventListener("keyup", e => keys[e.code] = false);
+addEventListener("keydown", e => keys[e.code] = true);
+addEventListener("keyup", e => keys[e.code] = false);
 
-// Pointer lock
-const ui = document.getElementById("ui");
-ui.onclick = () => document.body.requestPointerLock();
-document.addEventListener("pointerlockchange", () => {
-  ui.style.display = document.pointerLockElement ? "none" : "flex";
+// ===== POINTER LOCK (FIXED) =====
+document.addEventListener("click", () => {
+  if (!document.pointerLockElement) {
+    renderer.domElement.requestPointerLock();
+    console.log("Pointer lock requested");
+  }
 });
 
-// Mouse look (WORKING)
+document.addEventListener("pointerlockchange", () => {
+  console.log("Pointer lock:", document.pointerLockElement ? "ON" : "OFF");
+});
+
+// ===== MOUSE LOOK (VERY OBVIOUS) =====
 let pitch = 0;
 document.addEventListener("mousemove", e => {
   if (!document.pointerLockElement) return;
 
-  camera.rotation.y -= e.movementX * 0.002;
-  pitch -= e.movementY * 0.002;
+  camera.rotation.y -= e.movementX * 0.003;
+  pitch -= e.movementY * 0.003;
   pitch = Math.max(-1.5, Math.min(1.5, pitch));
   camera.rotation.x = pitch;
 });
@@ -64,10 +69,10 @@ function animate() {
 
   const right = new THREE.Vector3().crossVectors(forward, camera.up);
 
-  if (keys.KeyW) camera.position.add(forward.clone().multiplyScalar(speed));
-  if (keys.KeyS) camera.position.add(forward.clone().multiplyScalar(-speed));
-  if (keys.KeyA) camera.position.add(right.clone().multiplyScalar(-speed));
-  if (keys.KeyD) camera.position.add(right.clone().multiplyScalar(speed));
+  if (keys.KeyW) camera.position.add(forward.multiplyScalar(speed));
+  if (keys.KeyS) camera.position.add(forward.multiplyScalar(-speed));
+  if (keys.KeyA) camera.position.add(right.multiplyScalar(-speed));
+  if (keys.KeyD) camera.position.add(right.multiplyScalar(speed));
 
   renderer.render(scene, camera);
 }
